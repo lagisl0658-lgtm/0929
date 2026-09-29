@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>開髖訓練計畫小工具</title>
+<style>
+:root{--blue:#2563eb;--blue2:#dbeafe;--green:#16a34a;--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#64748b;--border:#dce3ec;--danger:#dc2626}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Microsoft JhengHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+header{background:linear-gradient(135deg,#172033,#2563eb);color:white;padding:24px 18px}
+.header{max-width:1100px;margin:auto}
+h1{margin:0 0 5px;font-size:28px}
+.subtitle{opacity:.88}
+.container{max-width:1100px;margin:20px auto;padding:0 16px}
+.grid{display:grid;grid-template-columns:1.45fr .75fr;gap:18px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:18px;box-shadow:0 5px 18px rgba(20,35,60,.05)}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+h2{font-size:19px;margin:0}
+h3{font-size:16px;margin:18px 0 8px}
+.badge{display:inline-block;background:var(--blue2);color:#174ea6;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700}
+.progress-wrap{height:12px;background:#e7ebf0;border-radius:99px;overflow:hidden;margin:12px 0}
+.progress{height:100%;width:0;background:var(--blue);transition:.25s}
+.exercise{border-top:1px solid var(--border);padding:13px 0}
+.exercise:first-child{border-top:0}
+.ex-row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.name{font-weight:750}
+.detail{font-size:13px;color:var(--muted)}
+button,.video{min-height:42px;border-radius:10px;padding:8px 13px;border:1px solid var(--border);background:white;color:var(--text);font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+button:hover,.video:hover{filter:brightness(.97)}
+.complete.done{background:#dcfce7;border-color:#86efac;color:#166534}
+.video{margin-top:8px;font-size:13px}
+.primary{background:var(--blue);color:white;border-color:var(--blue);width:100%}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;font:inherit;background:white}
+label{font-size:13px;color:var(--muted);display:block;margin:10px 0 5px}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.stat{background:#f8fafc;border:1px solid var(--border);border-radius:12px;padding:11px;text-align:center}
+.stat strong{font-size:22px;display:block}
+.notice{padding:12px;border-left:4px solid var(--blue);background:#eff6ff;border-radius:8px;font-size:13px}
+.warning{border-left-color:var(--danger);background:#fef2f2}
+.history{font-size:13px}
+.history-item{padding:9px 0;border-top:1px solid var(--border)}
+.small{font-size:12px;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:8px 16px 28px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}h1{font-size:24px}.statgrid{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:500px){.ex-row{align-items:flex-start;flex-direction:column}.complete{width:100%}}
+</style>
+</head>
+<body>
+<header>
+<div class="header">
+<h1>🦴 開髖訓練計畫</h1>
+<div class="subtitle">暖身 → 主動作 → 放鬆伸展｜每日約 25–30 分鐘</div>
+</div>
+</header>
+
+<main class="container">
+<div class="grid">
+<section>
+<div class="card">
+<div class="section-title">
+<div><span class="badge">今日訓練</span><h2 style="margin-top:7px">活動度 × 穩定 × 控制</h2></div>
+<strong id="percent">0%</strong>
+</div>
+<div class="progress-wrap"><div class="progress" id="progress"></div></div>
+<div class="small">完成所有項目後即可儲存今日訓練成果。</div>
+</div>
+
+<div class="card">
+<h2>① 暖身・6–8 分鐘</h2>
+<div id="warmup"></div>
+</div>
+
+<div class="card">
+<h2>② 主動作・12–15 分鐘</h2>
+<div id="main"></div>
+</div>
+
+<div class="card">
+<h2>③ 放鬆伸展・6–8 分鐘</h2>
+<div id="stretch"></div>
+</div>
+</section>
+
+<aside>
+<div class="card">
+<h2>📅 今日紀錄</h2>
+<label for="date">日期</label>
+<input id="date" type="date">
+
+<label for="rpe">主觀強度 RPE</label>
+<select id="rpe">
+<option value="3">3｜很輕鬆</option>
+<option value="4">4｜輕鬆</option>
+<option value="5" selected>5｜中等</option>
+<option value="6">6｜稍吃力</option>
+<option value="7">7｜吃力</option>
+</select>
+
+<label for="note">今日感受</label>
+<textarea id="note" rows="3" placeholder="例如：左側較緊、整體順暢"></textarea>
+
+<button class="primary" id="save" style="margin-top:12px">💾 儲存今日紀錄</button>
+<div id="message" class="small" aria-live="polite" style="margin-top:8px"></div>
+</div>
+
+<div class="card">
+<h2>📊 進度追蹤</h2>
+<div class="statgrid">
+<div class="stat"><strong id="days">0</strong><span class="small">完成天數</span></div>
+<div class="stat"><strong id="streak">0</strong><span class="small">連續天數</span></div>
+<div class="stat"><strong id="sessions">0</strong><span class="small">總紀錄</span></div>
+</div>
+<div id="history" class="history"></div>
+</div>
+
+<div class="card">
+<h2>⚠️ 安全守則</h2>
+<div class="notice">以「舒服、可控制」為原則。不要強壓髖關節，也不要為了追求角度而代償腰部。</div>
+<div class="notice warning" style="margin-top:9px">若出現尖銳或明顯疼痛、跛行、麻木、無力，或運動後症狀持續惡化，請停止訓練並尋求醫療專業評估。</div>
+</div>
+</aside>
+</div>
+</main>
+
+<footer>一般運動訓練工具，不能取代醫師或物理治療師的個別評估。</footer>
+
+<script>
+(function(){
+const exercises={
+warmup:[
+["原地踏步","2 分鐘","提高體溫，保持輕鬆自然。","https://www.nhs.uk/live-well/exercise/strength-and-resistance/body-blast-warm-up/"],
+["髖關節繞圈","每側 8 次","扶牆站立，小幅度繞圈，不追求最大角度。","https://www.cuh.nhs.uk/patient-information/exercises-for-hip-movement/"],
+["站姿髖屈伸","每側 8 次","骨盆保持穩定，腿前後移動。","https://www.cuh.nhs.uk/patient-information/hip-strengthening-exercises/"]
+],
+main:[
+["臀橋","2 組 × 10 次","收臀抬髖，避免腰部過度拱起。","https://www.cuh.nhs.uk/patient-information/hip-strengthening-exercises/"],
+["椅子坐站","2 組 × 8–10 次","膝蓋方向與腳尖一致，慢慢坐下、站起。","https://www.acefitness.org/continuing-education/certified/august-2026/9176/beyond-tight-hip-flexors-a-more-complete-approach-to-hip-pain/"],
+["扶椅側抬腿","2 組 × 8–10 次/側","身體不要側倒，腿向側方移動並慢慢回收。","https://www.cuh.nhs.uk/patient-information/hip-strengthening-exercises/"],
+["短距離反向弓步","2 組 × 6–8 次/側","先小幅度，保持軀幹穩定；必要時扶支撐物。","https://www.acefitness.org/continuing-education/certified/august-2026/9176/beyond-tight-hip-flexors-a-more-complete-approach-to-hip-pain/"]
+],
+stretch:[
+["半跪髖屈肌伸展","20–30 秒 × 2/側","骨盆微收，保持軀幹直立，不要硬壓。","https://www.acefitness.org/continuing-education/prosource/january-2016/5756/a-workout-to-counteract-the-effects-of-prolonged-sitting/"],
+["仰躺抱膝","20–30 秒 × 2/側","輕柔將膝蓋靠近身體，保持自然呼吸。","https://www.cuh.nhs.uk/patient-information/stretches-for-the-hip/"],
+["臀肌輕柔伸展","20–30 秒 × 2/側","只到輕微牽拉感；若髖外側疼痛則跳過。","https://www.cuh.nhs.uk/patient-information/gluteal-tendinopathy/"]
+]};
+
+let done=new Set();
+let logs=[];
+const total=Object.values(exercises).reduce((n,a)=>n+a.length,0);
+
+function today(){
+ const d=new Date();
+ d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+ return d.toISOString().slice(0,10);
+}
+document.getElementById("date").value=today();
+
+function render(group,id,prefix){
+ const el=document.getElementById(id);
+ el.innerHTML=exercises[group].map((x,i)=>`
+ <div class="exercise">
+   <div class="ex-row">
+     <div><div class="name">${x[0]}</div><div class="detail">${x[1]}｜${x[2]}</div></div>
+     <button type="button" class="complete" data-key="${prefix}${i}">完成</button>
+   </div>
+   <div class="actions">
+     <a class="video" href="${x[3]}" target="_blank" rel="noopener">▶ 動作教學／影片</a>
+   </div>
+ </div>`).join("");
+ el.querySelectorAll(".complete").forEach(btn=>{
+   btn.addEventListener("click",()=>{
+     const key=btn.dataset.key;
+     if(done.has(key)){done.delete(key);btn.classList.remove("done");btn.textContent="完成";}
+     else{done.add(key);btn.classList.add("done");btn.textContent="已完成 ✓";}
+     update();
+   });
+ });
+}
+render("warmup","warmup","w");
+render("main","main","m");
+render("stretch","stretch","s");
+
+function update(){
+ const p=Math.round(done.size/total*100);
+ document.getElementById("percent").textContent=p+"%";
+ document.getElementById("progress").style.width=p+"%";
+}
+
+function calcStreak(){
+ if(!logs.length)return 0;
+ const set=new Set(logs.map(x=>x.date));
+ let d=new Date();
+ let count=0;
+ while(true){
+   const s=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+   if(!set.has(s))break;
+   count++;
+   d.setDate(d.getDate()-1);
+ }
+ return count;
+}
+
+function refresh(){
+ document.getElementById("days").textContent=new Set(logs.map(x=>x.date)).size;
+ document.getElementById("streak").textContent=calcStreak();
+ document.getElementById("sessions").textContent=logs.length;
+ const h=document.getElementById("history");
+ if(!logs.length){
+   h.innerHTML='<div class="small" style="margin-top:10px">尚無紀錄。</div>';
+   return;
+ }
+ h.innerHTML=logs.slice().reverse().map(x=>`
+ <div class="history-item">
+   <strong>${x.date}</strong><br>
+   <span class="small">完成 ${x.completed}/${x.total}｜RPE ${x.rpe}${x.note?"｜"+escapeHtml(x.note):""}</span>
+ </div>`).join("");
+}
+
+function escapeHtml(s){
+ return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+
+document.getElementById("save").addEventListener("click",()=>{
+ const date=document.getElementById("date").value||today();
+ logs=logs.filter(x=>x.date!==date);
+ logs.push({
+   date,
+   completed:done.size,
+   total,
+   rpe:document.getElementById("rpe").value,
+   note:document.getElementById("note").value.trim()
+ });
+ logs.sort((a,b)=>a.date.localeCompare(b.date));
+ refresh();
+ document.getElementById("message").textContent="✓ 今日訓練已記錄。";
+});
+
+update();
+refresh();
+})();
+</script>
+</body>
+</html>
